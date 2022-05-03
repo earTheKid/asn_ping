@@ -9,7 +9,7 @@ fi
 
 rm -rf .ranges.txt
 
-mkdir -p "./results/$2/output_$(date  +'%m%d%y')"
+mkdir -p "./results/$1/output_$(date  +'%m%d%y')/"
 
 echo "get ranges for ASN $2"
 ./get_ip_ranges_for_asn.sh $2 >> .ranges.txt

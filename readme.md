@@ -1,11 +1,18 @@
-## Usage
-1. run  ./ping_country.sh YE
 
-2. 
+This script is a masscan wrapper that sends icmp-echo requests to all know IPs of a country, based on the ASN locaton.
+
+## Dependencies
+
+## Usage
+./ping_country.sh YE
+ 
 
 ## To Do
+- update get_asns_for_country.sh to store result file every day (but still only create a new dir every month)
 - script to get asns and ip ranges for country to have final command like "ping_country.sh  ye 500"  
 
+## Limitations
+- Cannot verify real physical location - output based on asn whois information.
 
 ## Other interesting rsources
 
