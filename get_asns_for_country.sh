@@ -19,11 +19,22 @@ mkdir  -p $filepath
 
 echo "get asns from ripe"
 
-ripe_data=$(curl --location --request GET "https://stat.ripe.net/data/country-asns/data.json?resource=$1&lod=1")
-# get routed asns
-echo $ripe_data |jq '.data.countries'|grep '"routed"'|awk '{gsub("), AsnSingle\(",","); print}'|awk '{gsub("\"routed\": \"\{AsnSingle\(",""); print}'|awk '{gsub("\"routed\": \"\{AsnSingle\(",","); print}'|awk 'gsub("\)\}\".","")'| awk '{gsub(",","\n"); print;}' > "$filepath/$1_$(date  +'%m%Y')_asns.txt"
-## get non routed asns
-echo $ripe_data |jq '.data.countries'|grep '"non_routed"'|awk '{gsub("), AsnSingle\(",","); print}'|awk '{gsub("\"non_routed\": \"\{AsnSingle\(",""); print}'|awk '{gsub("\"non_routed\": \"\{AsnSingle\(",","); print}'|awk 'gsub("\)\}\".","")'| awk '{gsub(",","\n"); print;}' >> "$filepath/$1_$(date  +'%m%Y')_asns.txt"
+# Ensure jq is available
+if ! command -v jq >/dev/null 2>&1; then
+   echo "Error: jq is not installed."
+   if command -v brew >/dev/null 2>&1; then
+      echo "Attempting to install jq via Homebrew..."
+      brew install jq || { echo "Failed to install jq via Homebrew. Please install jq and retry."; exit 1; }
+   else
+      echo "Please install jq (e.g., via Homebrew: brew install jq) and rerun."
+      exit 1
+   fi
+fi
+
+# Fetch and parse ASNs (routed + non_routed) into one-per-line list
+curl --location --silent "https://stat.ripe.net/data/country-asns/data.json?resource=$1&lod=1" \
+  | jq -r '.data.countries[] | (.routed + "," + .non_routed) | gsub("AsnSingle\\("; "") | gsub("\\)"; "") | gsub("[{} ]"; "") | split(",")[]' \
+  > "$filepath/$1_$(date  +'%m%Y')_asns.txt"
 
 
 
